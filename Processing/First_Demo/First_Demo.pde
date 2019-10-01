@@ -1,4 +1,4 @@
-int loopFrames = 5120;
+int loopFrames = 512;
 float loopProgress = 0;
 
 NoiseLoop noise1, noise2;
@@ -9,8 +9,8 @@ void setup() {
   fill(255);
   noStroke();
   
-  noise1 = new NoiseLoop(64);
-  noise2 = new NoiseLoop(64);
+  noise1 = new NoiseLoop(16);
+  noise2 = new NoiseLoop(16);
 }
 
 void draw() {
