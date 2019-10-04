@@ -151,9 +151,9 @@ class Vec2
 
 class PolarCurve
 {
-    constructor(rExp, centerPos)
+    constructor(rFunc, centerPos)
     {
-        this.radiusExpression = null; //not sure how to go about this
+        this.radiusFunction = rFunc; //not sure how to go about this
         this.centerPos = centerPos;
     }
 

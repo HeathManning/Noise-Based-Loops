@@ -4,7 +4,15 @@ var time = 0;
 var lastTime = 0;
 var elapsedTime = 0;
 var loopTime = 0;
-var center = new Vec2(window.innerWidth/2, window.innerHeight/2);
+var center = new Vec2(384, 384);
+
+var capturer = new CCapture( {
+    framerate: 60,
+    format: "gif",
+    verbose: true,
+    workersPath: "./",
+    name: "Loopy Thing"
+} );
 
 function setup()
 {
@@ -13,15 +21,18 @@ function setup()
         particles.push(new TestParticle());
     }
 
-    createCanvas(window.innerWidth, window.innerHeight);
+    createCanvas(768, 768);
     fill(191);
     noStroke();
     ellipseMode(RADIUS);
+
+    capturer.start();
+    lastTime = Date.now()/1000;
 }
   
 function draw()
 {
-    time = lastTime + 1/60;
+    time = Date.now()/1000
     elapsedTime = elapsedTime + time - lastTime;
     lastTime = time*1;
     loopTime = (elapsedTime % loopDuration) / loopDuration;
@@ -38,9 +49,18 @@ function draw()
         pop();
         particles[i].Draw(loopTime);
     }
+
+    if(elapsedTime >= loopDuration)
+    {
+        capturer.stop();
+        capturer.save();
+    } else
+    {
+        capturer.capture(canvas);
+    }
 }
 
 function windowResized() {
-    resizeCanvas(window.innerWidth, window.innerHeight);
-    center = new Vec2(window.innerWidth/2, window.innerHeight/2);
+    //resizeCanvas(window.innerWidth, window.innerHeight);
+    //center = new Vec2(window.innerWidth/2, window.innerHeight/2);
 }
