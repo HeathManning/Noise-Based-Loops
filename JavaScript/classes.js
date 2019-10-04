@@ -1,16 +1,26 @@
-class noiseLoop
+function ranFlip()
+{
+    if(Math.random() > 0.5)
+    {
+        return 1;
+    }
+    return -1;
+}
+
+class NoiseLoop
 {
     constructor(radius)
     {
-        this.radius = radius*1;
+        this.radius = 1;
         this.centerPos = new Vec2(Math.random()*8192, Math.random()*8192); 
     }
 
     Sample(percentage)
     {
         let samplePos = Vec2.Add(this.centerPos, Vec2.FromAngle(percentage*Math.PI*2, this.radius))
-        return noise(samplePos.x, samplePos.y);
+        return 2.0*(noise(samplePos.x, samplePos.y)-0.5);
     }
+    
 }
 
 //fairly standard 2D vector class copied from my swarm rockets project
@@ -136,5 +146,65 @@ class Vec2
     static Random(radius)
     {
         return Vec2.FromAngle(Math.random()*Math.PI*2, radius);
+    }
+}
+
+class PolarCurve
+{
+    constructor(rExp, centerPos)
+    {
+        this.radiusExpression = null; //not sure how to go about this
+        this.centerPos = centerPos;
+    }
+
+    Sample(percentage, radius)
+    {
+        return Vec2.Add(this.centerPos, Vec2.FromAngle(percentage*Math.PI*2, radius));
+    }
+}
+
+class Particle
+{
+    constructor(parameters, baseCurve)
+    {
+        this.offset = Math.random();
+        this.noiseLoops = [new NoiseLoop(), new NoiseLoop(), new NoiseLoop(), new NoiseLoop()];
+        this.parameters = parameters;
+        this.baseCurve = baseCurve;
+        this.position = Vec2.Add(this.baseCurve.Sample(0), Vec2.Scale(new Vec2(this.noiseLoops[2].Sample(0), this.noiseLoops[3].Sample(0)), 4.0));
+        this.flip = 1
+    }
+
+    Draw(time)
+    {
+        let loopTime = (time + this.offset) % 1;
+        this.rad = this.parameters.rad*this.noiseLoops[0].Sample(loopTime);
+        this.glowRad = this.parameters.glowRad*this.noiseLoops[1].Sample(loopTime);
+        this.position = this.baseCurve.Sample(loopTime, 256+64*this.noiseLoops[2].Sample(loopTime));
+        //this.position = Vec2.Scale(new Vec2(this.noiseLoops[2].Sample(loopTime), this.noiseLoops[3].Sample(loopTime)), 512.0);
+
+        push();
+        translate(this.position.x, this.position.y);
+        fill(this.parameters.glowCol);
+        ellipse(0, 0, this.glowRad);
+        fill(this.parameters.col);
+        ellipse(0, 0, this.rad);
+        pop();
+    }
+}
+
+class TestParticle extends Particle
+{
+    constructor()
+    {
+        let baseCurve = new PolarCurve(null, new Vec2(0, 0));
+        let params = 
+        {
+            rad:Math.random()*16,
+            glowRad:Math.random()*64,
+            col:color(0, 255, 127, 255),
+            glowCol:color(127, 0, 127, 63)
+        };
+        super(params, baseCurve);
     }
 }
